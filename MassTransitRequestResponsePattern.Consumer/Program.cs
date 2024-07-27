@@ -1,21 +1,31 @@
 ﻿using MassTransit;
+using MassTransit.Transports.Fabric;
 using MassTransitRequestResponsePattern.Consumer.Consumers;
+using System.Net;
 
 Console.WriteLine("Consumer");
-string uri = "amqps://elifsxaozz:fsHBZLFsOOIjLRCPriEgU0sbeKNUhfgt_YSUm@toad.rmq.cloudamqp.com/elixaozz";
 
-string queueName = "request-queue";
+// تنظیمات جدید
+string rabbitMqHost = "***.***.***.***";
+string userName = "guest";
+string password = "guest";
 
-var bus=Bus.Factory.CreateUsingRabbitMq(configure =>
+// URI اتصال
+var rabbitMqUri = new Uri($"rabbitmq://{rabbitMqHost}");
+
+var bus = Bus.Factory.CreateUsingRabbitMq(configure =>
 {
-    configure.Host(uri);
-
-    configure.ReceiveEndpoint(queueName, endpoint =>
+    configure.Host(rabbitMqUri, h =>
     {
-        endpoint.Consumer<RequestMessageConsumer>();
+        h.Username(userName);
+        h.Password(password);
+    });
+
+    configure.ReceiveEndpoint("QueuName", ep =>
+    {
+        ep.Consumer<RequestMessageConsumer>();
     });
 });
-
 
 await bus.StartAsync();
 
